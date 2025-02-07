@@ -1,8 +1,6 @@
 /* eslint-disable react/prop-types */
-// DashboardProfile.jsx
 import { Heading, Box } from "@chakra-ui/react";
 import Profile from "./Profile";
-// Single user object (NOT array)
 
 const DashboardProfile = ({ currentUser }) => {
   return (
