@@ -19,7 +19,7 @@ const WorkoutDashboard = () => {
     const fetchWorkouts = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.production.VITE_API_URL}/api/workouts`,
+          `${import.meta.env.VITE_API_URL}/api/workouts`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
