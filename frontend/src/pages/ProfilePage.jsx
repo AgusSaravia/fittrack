@@ -20,7 +20,6 @@ const ProfilePage = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  // Función para obtener los datos del perfil con el token
   const fetchProfile = async () => {
     try {
       const response = await fetch(`${apiUrl}/api/profile`, {
@@ -37,7 +36,6 @@ const ProfilePage = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (token) {
       fetchProfile();
@@ -52,7 +50,6 @@ const ProfilePage = () => {
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Función para actualizar la foto de perfil usando FileReader
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
     if (file) {

@@ -9,7 +9,8 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+  const apiUrl =
+    import.meta.env.production.VITE_API_URL || "http://localhost:8080";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,8 +26,7 @@ const LoginPage = () => {
       if (!res.ok) {
         throw new Error(data.message || "Login failed");
       }
-      // Backend returns: { message: "Login successful", token }
-      // Llama a login() para guardar el token en el contexto y localStorage
+
       login(data.token, null);
       navigate("/profile");
     } catch (err) {

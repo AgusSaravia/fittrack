@@ -20,7 +20,7 @@ const WorkoutDashboard = () => {
       try {
         const response = await fetch(
           `${
-            import.meta.env.VITE_API_URL || "http://localhost:8080"
+            import.meta.env.production.VITE_API_URL || "http://localhost:8080"
           }/api/workouts`,
           {
             headers: {
