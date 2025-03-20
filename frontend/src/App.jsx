@@ -23,7 +23,6 @@ const App = () => {
   );
 };
 
-// Componente Home simple
 const Home = () => (
   <div className="min-h-screen bg-base-200 flex items-center justify-center">
     <div className="bg-base-100 rounded-lg shadow-lg p-6 mx-4 text-center">

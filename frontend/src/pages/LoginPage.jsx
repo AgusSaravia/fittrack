@@ -82,7 +82,7 @@ const LoginPage = () => {
           </div>
         </form>
         <p className="text-sm text-center mt-4">
-          Don't have an account?{" "}
+          Don't have an account?{"  "}
           <Link to="/register" className="link link-primary">
             Register
           </Link>

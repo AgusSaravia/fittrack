@@ -11,7 +11,7 @@ import LoadingSpinner from "./dashboard/LoadingSpinner";
 import ErrorDisplay from "./dashboard/ErrorDisplay";
 
 // Constants
-const API_BASE_URL = "http://localhost:8080/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
 const DEFAULT_CATEGORY = "all";
