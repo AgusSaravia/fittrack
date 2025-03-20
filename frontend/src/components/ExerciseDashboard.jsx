@@ -10,7 +10,6 @@ import ExercisesList from "./dashboard/ExercisesList";
 import LoadingSpinner from "./dashboard/LoadingSpinner";
 import ErrorDisplay from "./dashboard/ErrorDisplay";
 
-// Constants
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
