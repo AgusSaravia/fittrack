@@ -20,7 +20,7 @@ const WorkoutDashboard = () => {
       try {
         const response = await fetch(
           import.meta.env.VITE_API_URL
-            ? `${import.meta.env.VITE_API_URL}/api/workouts`
+            ? `${import.meta.env.VITE_API_URL}/workouts`
             : "http://localhost:8080/api/workouts",
           {
             headers: {
@@ -64,7 +64,7 @@ const WorkoutDashboard = () => {
   const handleDeleteWorkout = async (id) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/workouts/${id}`,
+        `${import.meta.env.VITE_API_URL}/workouts/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -89,7 +89,7 @@ const WorkoutDashboard = () => {
 
       if (editingWorkout) {
         response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/workouts/${editingWorkout._id}`,
+          `${import.meta.env.VITE_API_URL}/workouts/${editingWorkout._id}`,
           {
             method: "PUT",
             headers: {
@@ -100,7 +100,7 @@ const WorkoutDashboard = () => {
           }
         );
       } else {
-        response = await fetch(`${import.meta.env.VITE_API_URL}/api/workouts`, {
+        response = await fetch(`${import.meta.env.VITE_API_URL}/workouts`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
