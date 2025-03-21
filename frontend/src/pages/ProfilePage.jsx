@@ -22,7 +22,7 @@ const ProfilePage = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/profile`, {
+      const response = await fetch(`${apiUrl}/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) {
@@ -69,7 +69,7 @@ const ProfilePage = () => {
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/profile`, {
+      const response = await fetch(`${apiUrl}/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
