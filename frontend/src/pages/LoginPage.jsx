@@ -92,7 +92,7 @@ const LoginPage = () => {
           </div>
           <div className="hidden md:block relative">
             <img
-              src="./public/loginPage.webp"
+              src="./loginPage.webp"
               alt="Fitness"
               className="w-full h-full object-cover absolute inset-0"
             />

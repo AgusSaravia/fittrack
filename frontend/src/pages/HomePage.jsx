@@ -10,7 +10,7 @@ const Home = () => {
       <div
         className="bg-zinc-150 rounded-3xl shadow-2xl overflow-hidden max-w-4xl w-full md:bg-none"
         style={{
-          backgroundImage: "url('./public/HomePage.webp')",
+          backgroundImage: "url('./HomePage.webp')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           display: "block",
