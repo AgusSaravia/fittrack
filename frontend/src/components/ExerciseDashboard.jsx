@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import HeroSection from "./dashboard/HeroSection";
 import SearchFilters from "./dashboard/SearchFilters";
 import ResultsBreadcrumbs from "./dashboard/ResultsBreadcrumbs";
 import NoResultsFound from "./dashboard/NoResultsFound";
@@ -134,7 +133,7 @@ const ExerciseDashboard = () => {
         setTotalPages(data.totalPages);
         setLoading(false);
       } catch (err) {
-        console.error("API Error:", err);
+        console.error("API Error:", err, err.stack);
         setError(err.message);
         setLoading(false);
       }
@@ -194,16 +193,6 @@ const ExerciseDashboard = () => {
 
   return (
     <div className="min-h-screen bg-base-200">
-      <HeroSection />
-
-      <div className="container mx-auto px-4 pt-4">
-        <h2 className="text-xl font-bold mb-4">Search and filter exercises</h2>
-        <p className="mb-4 text-base-content/70">
-          Find exercises by muscle category. Select a specific category to see
-          related exercises.
-        </p>
-      </div>
-
       <SearchFilters
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -230,7 +219,7 @@ const ExerciseDashboard = () => {
               <ExercisesList exercises={exercises} />
             )}
 
-            <div className="pagination mt-4 flex justify-center gap-4">
+            <div className="pagination mt-4 p-6 flex justify-center gap-4">
               <button
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page <= 1}

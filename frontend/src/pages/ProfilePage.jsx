@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import ErrorDisplay from "../components/dashboard/ErrorDisplay";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const { token } = useContext(AuthContext);
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
-  // Se incluyen nuevos campos, entre ellos profilePicture para la foto del perfil
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -20,30 +22,30 @@ const ProfilePage = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const fetchProfile = async () => {
-    try {
-      const response = await fetch(`${apiUrl}/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) {
-        throw new Error("Error fetching profile data");
-      }
-      const data = await response.json();
-      setProfile(data);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-    }
-  };
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) {
+          throw new Error("Error fetching profile data");
+        }
+        const data = await response.json();
+        setProfile(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
     if (token) {
       fetchProfile();
     } else {
       setError("You are not logged in. Please login.");
       setLoading(false);
     }
-  }, [token]);
+  }, [token, apiUrl]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -93,10 +95,18 @@ const ProfilePage = () => {
         <span className="loading loading-spinner loading-lg"></span>
       </div>
     );
+  if (!token) {
+    return (
+      <ErrorDisplay
+        action={"Login"}
+        error={error}
+        onRetry={() => navigate("/login")}
+      />
+    );
+  }
 
   return (
     <div className="container mx-auto p-6">
-      {error && <div className="alert alert-error mb-4">{error}</div>}
       {message && <div className="alert alert-success mb-4">{message}</div>}
       <div className="card lg:card-side bg-base-100 shadow-xl">
         <div className="flex flex-col items-center p-4">

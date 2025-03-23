@@ -1,6 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-const WorkoutCard = ({ workout, onEdit, onDelete }) => {
+const WorkoutCard = ({ workout, onDelete }) => {
   return (
     <div className="card bg-base-100 shadow-md hover:shadow-lg transition-shadow duration-300">
       <div className="card-body p-4">
@@ -28,9 +29,12 @@ const WorkoutCard = ({ workout, onEdit, onDelete }) => {
         </p>
 
         <div className="card-actions justify-end">
-          <button onClick={onEdit} className="btn btn-sm btn-outline">
+          <Link
+            to={`/workout/${workout._id}`}
+            className="btn btn-sm btn-outline"
+          >
             Edit
-          </button>
+          </Link>
           <button
             onClick={onDelete}
             className="btn btn-sm btn-error btn-outline"

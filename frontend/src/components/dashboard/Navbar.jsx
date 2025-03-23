@@ -46,7 +46,7 @@ const Navbar = () => {
               <Link to="/profile">My Profile</Link>
             </li>
             <li>
-              <Link to="/favorites">Favorites</Link>
+              <Link to="/">Home</Link>
             </li>
             <li>
               <Link to="/workouts">My Routines</Link>
@@ -65,7 +65,7 @@ const Navbar = () => {
                 <Link to="/profile">{user ? user.name : "Profile"}</Link>
               </li>
               <li>
-                <Link to="/favorites">Favorites</Link>
+                <Link to="/">Home</Link>
               </li>
               <li>
                 <Link to="/workouts">My Routines</Link>

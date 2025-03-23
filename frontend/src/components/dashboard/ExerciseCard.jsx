@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import GifModal from "./GifModal";
+import InstructionsModal from "./InstructionsModal";
 
 const ExerciseCard = ({ exercise }) => {
   const [showGifModal, setShowGifModal] = useState(false);
+  const [showInstructionsModal, setShowInstructionsModal] = useState(false);
 
   return (
     <>
@@ -30,9 +32,19 @@ const ExerciseCard = ({ exercise }) => {
             </div>
           )}
 
-          <p className="text-sm mt-3 line-clamp-2">
-            {exercise.instructions || "No description available"}
-          </p>
+          {exercise.instructions && exercise.instructions.length > 0 ? (
+            <>
+              <div className="text-sm hidden md:block">
+                <ol className="list-decimal ml-4">
+                  {exercise.instructions.map((instruction, idx) => (
+                    <li key={idx}>{instruction}</li>
+                  ))}
+                </ol>
+              </div>
+            </>
+          ) : (
+            <div className="text-sm">No description available</div>
+          )}
 
           <div className="flex flex-wrap gap-2 mt-3">
             <div className="badge badge-outline badge-sm">
@@ -52,6 +64,14 @@ const ExerciseCard = ({ exercise }) => {
                 View GIF
               </button>
             )}
+            <div className="text-sm block md:hidden">
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => setShowInstructionsModal(true)}
+              >
+                View Details
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -61,6 +81,13 @@ const ExerciseCard = ({ exercise }) => {
         gifUrl={exercise.gifUrl}
         exerciseName={exercise.name}
         onClose={() => setShowGifModal(false)}
+      />
+
+      <InstructionsModal
+        isOpen={showInstructionsModal}
+        instructions={exercise.instructions}
+        exerciseName={exercise.name}
+        onClose={() => setShowInstructionsModal(false)}
       />
     </>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 
-const ErrorDisplay = ({ error, onRetry }) => {
+const ErrorDisplay = ({ error, onRetry, action }) => {
   return (
     <div className="flex justify-center items-center min-h-screen p-4">
       <div className="alert alert-error w-full max-w-lg">
@@ -19,7 +19,7 @@ const ErrorDisplay = ({ error, onRetry }) => {
         </svg>
         <span>{error}</span>
         <button className="btn btn-sm" onClick={onRetry}>
-          Retry
+          {!action ? "Retry" : action}
         </button>
       </div>
     </div>

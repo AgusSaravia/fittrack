@@ -14,14 +14,6 @@ const ExerciseListItem = ({ exercise }) => {
               alt={exercise.name}
               className="h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-              <button
-                className="btn btn-xs btn-primary"
-                onClick={() => setShowGifModal(true)}
-              >
-                View GIF
-              </button>
-            </div>
           </div>
         ) : (
           <div className="w-24 md:w-36 bg-gray-200 flex items-center justify-center">
@@ -37,9 +29,21 @@ const ExerciseListItem = ({ exercise }) => {
           <div className="badge badge-primary inline-block">
             {exercise.bodyPart || "No category"}
           </div>
-          <p className="text-sm line-clamp-2">
-            {exercise.instructions || "No description available"}
-          </p>
+          <div className="text-sm md:text-base">
+            {exercise.instructions && exercise.instructions.length > 0 ? (
+              <ol className="list-decimal ml-4 md:ml-6 space-y-2">
+                {exercise.instructions.map((instruction, idx) => (
+                  <li key={idx} className="leading-relaxed">
+                    {instruction}
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="text-center text-gray-500">
+                No description available
+              </p>
+            )}
+          </div>
           <div className="card-actions justify-end">
             {exercise.gifUrl && (
               <button

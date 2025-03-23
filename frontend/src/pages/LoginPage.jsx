@@ -36,57 +36,69 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200">
-      <div className="w-full max-w-md p-6 bg-base-100 rounded-md shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
-        {error && (
-          <div className="alert alert-error mb-4">
-            <span>{error}</span>
+    <div className="min-h-screen bg-zinc-100-to-br from-zinc-100 to-black flex items-center justify-center py-20">
+      <div className="bg-zinc-150 rounded-3xl shadow-2xl overflow-hidden max-w-4xl w-full mx-4">
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="p-12 flex flex-col justify-center items-start">
+            <h2 className="text-3xl font-semibold text-center mb-6">Login</h2>
+            {error && (
+              <div className="alert alert-error mb-4">
+                <span>{error}</span>
+              </div>
+            )}
+            <form onSubmit={handleSubmit} className="space-y-4 w-full">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Email</span>
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email"
+                  className="input input-bordered"
+                  required
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Password</span>
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className="input input-bordered"
+                  required
+                />
+              </div>
+              <div className="form-control mt-6">
+                <button
+                  type="submit"
+                  className={`btn btn-primary ${loading ? "loading" : ""}`}
+                  disabled={loading}
+                >
+                  {loading ? "Logging in..." : "Login"}
+                </button>
+              </div>
+            </form>
+            <p className="text-sm text-center mt-4">
+              Don't have an account?{" "}
+              <Link to="/register" className="link link-primary">
+                Register
+              </Link>
+            </p>
           </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Email</span>
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              className="input input-bordered"
-              required
+          <div className="hidden md:block relative">
+            <img
+              src="./public/loginPage.webp"
+              alt="Fitness"
+              className="w-full h-full object-cover absolute inset-0"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-40"></div>
           </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Password</span>
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              className="input input-bordered"
-              required
-            />
-          </div>
-          <div className="form-control">
-            <button
-              type="submit"
-              className={`btn btn-primary ${loading ? "loading" : ""}`}
-              disabled={loading}
-            >
-              {loading ? "Logging in..." : "Login"}
-            </button>
-          </div>
-        </form>
-        <p className="text-sm text-center mt-4">
-          Don't have an account?{"  "}
-          <Link to="/register" className="link link-primary">
-            Register
-          </Link>
-        </p>
+        </div>
       </div>
     </div>
   );
