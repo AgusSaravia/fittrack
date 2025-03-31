@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const { token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
   const [profile, setProfile] = useState({
@@ -25,7 +25,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`${apiUrl}/profile`, {
+        const response = await fetch(`${apiUrl}/user/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) {
@@ -71,7 +71,7 @@ const ProfilePage = () => {
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`${apiUrl}/profile`, {
+      const response = await fetch(`${apiUrl}/user/me`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

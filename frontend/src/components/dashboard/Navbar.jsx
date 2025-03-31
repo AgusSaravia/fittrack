@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
 const Navbar = () => {
-  const { token, user, logout } = useContext(AuthContext);
+  const { token, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -62,7 +62,7 @@ const Navbar = () => {
           {token ? (
             <>
               <li>
-                <Link to="/profile">{user ? user.name : "Profile"}</Link>
+                <Link to="/profile">Profile</Link>
               </li>
               <li>
                 <Link to="/">Home</Link>
