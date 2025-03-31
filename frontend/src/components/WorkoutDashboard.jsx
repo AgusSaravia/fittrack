@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import HeroSection from "./workout/WorkoutHero";
-import WorkoutList from "./workout/WorkoutList";
 import LoadingSpinner from "./dashboard/LoadingSpinner";
 import ErrorDisplay from "./dashboard/ErrorDisplay";
 import RecentWorkoutsTable from "./RecentWorkoutsTable";
@@ -37,7 +36,6 @@ const WorkoutDashboard = () => {
           </div>
         ) : (
           <>
-            <WorkoutList workouts={workouts} />
             <RecentWorkoutsTable workouts={workouts} />
           </>
         )}

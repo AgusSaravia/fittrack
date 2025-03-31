@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { WorkoutContext } from "../../context/WorkoutContext";
+import { toast } from "react-toastify";
+import apiClient from "../../utils/apiClient";
 
 const API_BASE_URL =
   import.meta.env.MODE === "development"
@@ -86,20 +88,21 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
     } else if (isEditMode && id) {
       const fetchWorkout = async () => {
         try {
-          const response = await fetch(`${API_BASE_URL}/workouts/${id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if (!response.ok && response.status === 401) {
-            throw new Error(`${response.statusText} error on request`);
+          setLoading(true);
+          const response = await apiClient.get(`/workouts/${id}`);
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || "Failed to load workout");
           }
+
           const workout = await response.json();
           setWorkoutName(workout.name);
           setSelectedExercises(workout.exercises);
         } catch (err) {
           console.error("Error fetching workout:", err);
           setError("Couldn't load workout to edit. " + err.message);
+          toast.error("Failed to load workout details");
         } finally {
           setLoading(false);
         }
@@ -126,15 +129,24 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
   };
 
   const toggleExerciseSelection = (exercise) => {
-    const exerciseId = String(exercise._id);
-
-    if (selectedExercises.some((ex) => String(ex._id) === exerciseId)) {
+    if (selectedExercises.some((ex) => ex._id === exercise._id)) {
       setSelectedExercises(
-        selectedExercises.filter((ex) => String(ex._id) !== exerciseId)
+        selectedExercises.filter((ex) => ex._id !== exercise._id)
       );
     } else {
-      setSelectedExercises([...selectedExercises, exercise]);
+      setSelectedExercises([
+        ...selectedExercises,
+        { ...exercise, weight: "", reps: "" },
+      ]);
     }
+  };
+
+  const updateExerciseConfig = (exerciseId, field, value) => {
+    setSelectedExercises(
+      selectedExercises.map((ex) =>
+        ex._id === exerciseId ? { ...ex, [field]: value } : ex
+      )
+    );
   };
 
   const validateWorkoutName = (name) => {
@@ -164,6 +176,15 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
       return;
     }
 
+    // Validate that all exercises have weight and reps
+    const invalidExercises = selectedExercises.filter(
+      (ex) => !ex.weight || !ex.reps
+    );
+    if (invalidExercises.length > 0) {
+      toast.error("All exercises must have weight and reps specified");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -173,6 +194,8 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
           name: ex.name,
           muscleGroup: ex.bodyPart,
           equipment: ex.equipment || "",
+          weight: ex.weight || "",
+          reps: ex.reps || "",
         })),
         date: selectedDate.toISOString(),
       };
@@ -254,20 +277,59 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
                 <div className="mb-4">
                   <ul className="list-disc list-inside">
                     {selectedExercises.map((ex) => (
-                      <li
-                        key={ex._id}
-                        className="flex justify-between items-center mb-2"
-                      >
-                        <span>
-                          <strong>{ex.name}</strong> - {ex.bodyPart}
-                        </span>
-                        <button
-                          className="btn btn-sm btn-error btn-outline"
-                          onClick={() => toggleExerciseSelection(ex)}
-                          type="button"
-                        >
-                          Remove
-                        </button>
+                      <li key={ex._id} className="mb-4 border-b pb-2">
+                        <div className="flex justify-between items-center mb-2">
+                          <span>
+                            <strong>{ex.name}</strong> - {ex.bodyPart}
+                          </span>
+                          <button
+                            className="btn btn-sm btn-error btn-outline"
+                            onClick={() => toggleExerciseSelection(ex)}
+                            type="button"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 ml-4 mt-2">
+                          <div className="form-control">
+                            <label className="label">
+                              <span className="label-text">Weight (kg)</span>
+                            </label>
+                            <input
+                              min={0}
+                              type="number"
+                              value={ex.weight || ""}
+                              onChange={(e) =>
+                                updateExerciseConfig(
+                                  ex._id,
+                                  "weight",
+                                  e.target.value
+                                )
+                              }
+                              className="input input-bordered input-sm"
+                              required
+                            />
+                          </div>
+                          <div className="form-control">
+                            <label className="label">
+                              <span className="label-text">Reps</span>
+                            </label>
+                            <input
+                              min="0"
+                              type="number"
+                              value={ex.reps || ""}
+                              onChange={(e) =>
+                                updateExerciseConfig(
+                                  ex._id,
+                                  "reps",
+                                  e.target.value
+                                )
+                              }
+                              className="input input-bordered input-sm"
+                              required
+                            />
+                          </div>
+                        </div>
                       </li>
                     ))}
                   </ul>

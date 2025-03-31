@@ -15,7 +15,14 @@ const WorkoutCard = ({ workout, onDelete }) => {
 
         <ul className="text-sm list-disc list-inside mb-4">
           {workout.exercises.slice(0, 3).map((exercise, index) => (
-            <li key={index}>{exercise.name}</li>
+            <li key={index} className="mb-1">
+              <span className="font-medium">{exercise.name}</span>
+              {exercise.weight && exercise.reps && (
+                <span className="text-gray-600 ml-1">
+                  • {exercise.weight}kg × {exercise.reps} reps
+                </span>
+              )}
+            </li>
           ))}
           {workout.exercises.length > 3 && (
             <li className="text-gray-500">
@@ -36,7 +43,7 @@ const WorkoutCard = ({ workout, onDelete }) => {
             Edit
           </Link>
           <button
-            onClick={onDelete}
+            onClick={() => onDelete(workout._id)}
             className="btn btn-sm btn-error btn-outline"
           >
             Delete

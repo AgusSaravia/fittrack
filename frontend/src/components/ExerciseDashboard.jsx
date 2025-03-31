@@ -192,7 +192,7 @@ const ExerciseDashboard = () => {
     );
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="min-h-screen bg-base-200 pb-10">
       <SearchFilters
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -208,7 +208,7 @@ const ExerciseDashboard = () => {
         selectedCategory={selectedCategory}
       />
 
-      <div className="container mx-auto px-4">
+      <div className="w-full px-4 sm:px-6 md:container md:mx-auto md:max-w-7xl">
         {exercises.length === 0 ? (
           <NoResultsFound resetFilters={resetFilters} />
         ) : (
@@ -219,19 +219,21 @@ const ExerciseDashboard = () => {
               <ExercisesList exercises={exercises} />
             )}
 
-            <div className="pagination mt-4 p-6 flex justify-center gap-4">
+            <div className="pagination mt-8 p-6 flex justify-center gap-4">
               <button
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page <= 1}
-                className="btn btn-sm"
+                className="btn btn-primary btn-sm"
               >
                 Previous
               </button>
-              <span>Page {page}</span>
+              <span className="flex items-center">
+                Page {page} of {totalPages}
+              </span>
               <button
                 onClick={() => handlePageChange(page + 1)}
                 disabled={page >= totalPages}
-                className="btn btn-sm"
+                className="btn btn-primary btn-sm"
               >
                 Next
               </button>

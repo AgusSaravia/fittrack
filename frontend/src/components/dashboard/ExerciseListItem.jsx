@@ -6,9 +6,9 @@ const ExerciseListItem = ({ exercise }) => {
 
   return (
     <>
-      <div className="card card-side bg-base-100 shadow hover:shadow-md transition-shadow duration-300">
+      <div className="card card-side bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
         {exercise.gifUrl ? (
-          <div className="relative w-24 md:w-36 overflow-hidden">
+          <div className="relative w-32 md:w-48 h-full overflow-hidden">
             <img
               src={exercise.gifUrl}
               alt={exercise.name}
@@ -24,7 +24,7 @@ const ExerciseListItem = ({ exercise }) => {
             </div>
           </div>
         )}
-        <div className="card-body p-4">
+        <div className="card-body p-5">
           <h2 className="card-title text-lg">{exercise.name}</h2>
           <div className="badge badge-primary inline-block">
             {exercise.bodyPart || "No category"}

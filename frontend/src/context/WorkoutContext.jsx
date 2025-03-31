@@ -1,85 +1,74 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
+import apiClient from "../utils/apiClient";
+import { toast } from "react-toastify";
 
 export const WorkoutContext = createContext();
 
-const API_BASE_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:8080/api"
-    : import.meta.env.VITE_API_URL;
-
-const WorkoutProvider = ({ children }) => {
-  const { token } = useContext(AuthContext);
+export const WorkoutProvider = ({ children }) => {
+  const { isAuthenticated } = useContext(AuthContext);
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    if (token) {
-      fetchWorkouts(controller.signal);
+  const fetchWorkouts = async () => {
+    if (!isAuthenticated) {
+      setWorkouts([]);
+      setLoading(false);
+      return;
     }
-    return () => controller.abort();
-  }, [token]);
 
-  const fetchWorkouts = async (signal) => {
-    if (!token) return;
     setLoading(true);
+    setError(null);
+
     try {
-      const response = await fetch(`${API_BASE_URL}/workouts`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        signal,
-      });
+      const response = await apiClient.get("/workouts");
+
       if (!response.ok) {
-        throw new Error(`Failed to fetch workouts: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to fetch workouts");
       }
+
       const data = await response.json();
       setWorkouts(data);
     } catch (err) {
-      if (err.name !== "AbortError") {
-        setError(err.message);
-      }
+      console.error("Error fetching workouts:", err);
+      setError("Failed to load workouts. Please try again.");
+      toast.error("Could not load your workouts. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchWorkouts();
+    } else {
+      setWorkouts([]);
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
+
   const createWorkout = async (workoutData) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/workouts`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(workoutData),
-      });
+      const response = await apiClient.post("/workouts", workoutData);
 
       if (!response.ok) {
-        throw new Error(`Failed to create workout: ${response.statusText}`);
+        throw new Error("Failed to create workout");
       }
 
       const newWorkout = await response.json();
-      setWorkouts((prevWorkouts) => [...prevWorkouts, newWorkout]);
+      setWorkouts([...workouts, newWorkout]);
       return newWorkout;
     } catch (error) {
-      setError(error.message);
+      console.error("Error creating workout:", error);
       throw error;
     }
   };
 
   const updateWorkout = async (id, workoutData) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/workouts/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(workoutData),
-      });
+      const response = await apiClient.put(`/workouts/${id}`, workoutData);
 
       if (!response.ok) {
         throw new Error(`Failed to update workout: ${response.statusText}`);
@@ -93,19 +82,14 @@ const WorkoutProvider = ({ children }) => {
       );
       return updatedWorkout;
     } catch (error) {
-      setError(error.message);
+      console.error("Error updating workout:", error);
       throw error;
     }
   };
 
   const deleteWorkout = async (id) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/workouts/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await apiClient.delete(`/workouts/${id}`);
 
       if (!response.ok) {
         throw new Error(`Failed to delete workout: ${response.statusText}`);
@@ -115,12 +99,12 @@ const WorkoutProvider = ({ children }) => {
         prevWorkouts.filter((workout) => workout._id !== id)
       );
     } catch (error) {
-      setError(error.message);
+      console.error("Error deleting workout:", error);
       throw error;
     }
   };
 
-  const value = {
+  const contextValue = {
     workouts,
     loading,
     error,
@@ -131,8 +115,8 @@ const WorkoutProvider = ({ children }) => {
   };
 
   return (
-    <WorkoutContext.Provider value={value}>{children}</WorkoutContext.Provider>
+    <WorkoutContext.Provider value={contextValue}>
+      {children}
+    </WorkoutContext.Provider>
   );
 };
-
-export { WorkoutProvider };

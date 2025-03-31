@@ -56,7 +56,12 @@ const RecentWorkoutsTable = ({ workouts, limit = 5 }) => {
                     key={index}
                     className="inline-block bg-base-200 text-xs px-2 py-1 rounded"
                   >
-                    {exercise.name}
+                    {exercise.name}{" "}
+                    {exercise.weight && exercise.reps && (
+                      <span>
+                        ({exercise.weight}kg × {exercise.reps})
+                      </span>
+                    )}
                   </span>
                 ))}
                 {workout.exercises.length > 5 && (
