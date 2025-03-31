@@ -4,7 +4,7 @@ import { AuthContext } from "../../context/AuthContext";
 import LoadingSpinner from "../dashboard/LoadingSpinner";
 
 const ProtectedRoute = () => {
-  const { user, token, loading } = useContext(AuthContext);
+  const { token, loading } = useContext(AuthContext);
 
   // Check if token exists in localStorage/sessionStorage directly
   const storageToken =
