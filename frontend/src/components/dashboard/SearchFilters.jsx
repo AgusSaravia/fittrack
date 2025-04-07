@@ -6,6 +6,9 @@ const SearchFilters = ({
   selectedCategory,
   setSelectedCategory,
   categories,
+  selectedTarget,
+  setSelectedTarget,
+  targets,
   view,
   setView,
 }) => {
@@ -40,7 +43,7 @@ const SearchFilters = ({
           </div>
         </div>
 
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-col md:flex-row gap-2 items-center">
           <select
             className="select select-bordered w-full max-w-xs"
             value={selectedCategory}
@@ -48,7 +51,19 @@ const SearchFilters = ({
           >
             {categories.map((category) => (
               <option key={category} value={category}>
-                {category === "all" ? "All categories" : category}
+                {category === "all" ? "All body parts" : category}
+              </option>
+            ))}
+          </select>
+          
+          <select
+            className="select select-bordered w-full max-w-xs"
+            value={selectedTarget}
+            onChange={(e) => setSelectedTarget(e.target.value)}
+          >
+            {targets.map((target) => (
+              <option key={target} value={target}>
+                {target === "all" ? "All target muscles" : target}
               </option>
             ))}
           </select>

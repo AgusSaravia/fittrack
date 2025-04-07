@@ -30,6 +30,29 @@ const AVAILABLE_CATEGORIES = [
   "waist",
 ];
 
+const AVAILABLE_TARGETS = [
+  "all",
+  "abductors",
+  "abs",
+  "adductors",
+  "biceps",
+  "calves",
+  "cardiovascular system",
+  "delts",
+  "forearms",
+  "glutes",
+  "hamstrings",
+  "lats",
+  "levator scapulae",
+  "pectorals",
+  "quads",
+  "serratus anterior",
+  "spine",
+  "traps",
+  "triceps",
+  "upper back"
+];
+
 const ExerciseDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -38,6 +61,7 @@ const ExerciseDashboard = () => {
       offset: parseInt(searchParams.get("offset"), 10) || DEFAULT_OFFSET,
       limit: parseInt(searchParams.get("limit"), 10) || DEFAULT_LIMIT,
       category: searchParams.get("category") || DEFAULT_CATEGORY,
+      target: searchParams.get("target") || DEFAULT_CATEGORY,
       search: searchParams.get("search") || DEFAULT_SEARCH,
     }),
     [searchParams]
@@ -57,16 +81,21 @@ const ExerciseDashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState(
     getInitialState().category
   );
+  const [selectedTarget, setSelectedTarget] = useState(
+    getInitialState().target
+  );
   const [offset, setOffset] = useState(getInitialState().offset);
   const [limit] = useState(getInitialState().limit);
 
   // Fetch exercises using offset-based pagination.
   const fetchExercises = useCallback(async (params) => {
-    const { limit, offset, category, search } = params;
+    const { limit, offset, category, target, search } = params;
     const searchQuery = search ? `&search=${encodeURIComponent(search)}` : "";
     let url;
 
-    if (category && category !== DEFAULT_CATEGORY) {
+    if (target && target !== DEFAULT_CATEGORY) {
+      url = `${API_BASE_URL}/exercises/target/${target}?limit=${limit}&offset=${offset}${searchQuery}`;
+    } else if (category && category !== DEFAULT_CATEGORY) {
       url = `${API_BASE_URL}/exercises/bodyPart/${category}?limit=${limit}&offset=${offset}${searchQuery}`;
     } else {
       url = `${API_BASE_URL}/exercises?limit=${limit}&offset=${offset}${searchQuery}`;
@@ -100,6 +129,7 @@ const ExerciseDashboard = () => {
         limit: params.limit,
         offset: params.offset,
         category: params.category,
+        target: params.target,
         search: params.search,
       });
     },
@@ -121,6 +151,7 @@ const ExerciseDashboard = () => {
         limit,
         offset: DEFAULT_OFFSET,
         category: selectedCategory,
+        target: selectedTarget,
         search: debouncedSearchTerm,
       });
       setOffset(DEFAULT_OFFSET);
@@ -130,6 +161,7 @@ const ExerciseDashboard = () => {
     limit,
     searchParams,
     selectedCategory,
+    selectedTarget,
     updateUrlParams,
   ]);
 
@@ -141,6 +173,7 @@ const ExerciseDashboard = () => {
           limit,
           offset,
           category: selectedCategory,
+          target: selectedTarget,
           search: debouncedSearchTerm,
         };
         const data = await fetchExercises(params);
@@ -162,16 +195,18 @@ const ExerciseDashboard = () => {
       }
     };
     loadExercises();
-  }, [offset, limit, selectedCategory, debouncedSearchTerm, fetchExercises]);
+  }, [offset, limit, selectedCategory, selectedTarget, debouncedSearchTerm, fetchExercises]);
 
   const resetFilters = useCallback(() => {
     setSearchTerm(DEFAULT_SEARCH);
     setSelectedCategory(DEFAULT_CATEGORY);
+    setSelectedTarget(DEFAULT_CATEGORY);
     setOffset(DEFAULT_OFFSET);
     updateUrlParams({
       limit,
       offset: DEFAULT_OFFSET,
       category: DEFAULT_CATEGORY,
+      target: DEFAULT_CATEGORY,
       search: DEFAULT_SEARCH,
     });
   }, [limit, updateUrlParams]);
@@ -185,12 +220,13 @@ const ExerciseDashboard = () => {
         limit,
         offset: newOffset,
         category: selectedCategory,
+        target: selectedTarget,
         search: debouncedSearchTerm,
       });
       // Scroll to top for better user experience
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    [limit, selectedCategory, debouncedSearchTerm, updateUrlParams, offset]
+    [limit, selectedCategory, selectedTarget, debouncedSearchTerm, updateUrlParams, offset]
   );
 
   const currentPage = Math.floor(offset / limit) + 1;
@@ -210,6 +246,9 @@ const ExerciseDashboard = () => {
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
         categories={AVAILABLE_CATEGORIES}
+        selectedTarget={selectedTarget}
+        setSelectedTarget={setSelectedTarget}
+        targets={AVAILABLE_TARGETS}
         view={view}
         setView={setView}
       />
@@ -217,6 +256,7 @@ const ExerciseDashboard = () => {
       <ResultsBreadcrumbs
         resultCount={exercises.length}
         selectedCategory={selectedCategory}
+        selectedTarget={selectedTarget}
       />
 
       <div className="w-full px-4 sm:px-6 md:container md:mx-auto md:max-w-7xl">
