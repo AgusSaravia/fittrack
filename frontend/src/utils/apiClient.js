@@ -33,8 +33,6 @@ class ApiClient {
       return Promise.resolve(false);
     }
 
-    console.log("Refreshing access token...");
-
     this.refreshingPromise = (async () => {
       try {
         const response = await fetch(`${this.baseURL}/auth/refresh`, {
@@ -105,7 +103,9 @@ class ApiClient {
         this.loginInProgress = false;
       }
 
-      console.log(`API Response: ${response.status} ${response.statusText}`);
+      console.log(
+        `API Response: ${response.status} ${response.statusText}, ${response}`
+      );
       return response;
     } catch (error) {
       if (endpoint === "/auth/login") {

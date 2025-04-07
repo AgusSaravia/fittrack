@@ -10,7 +10,7 @@ import LoadingSpinner from "./dashboard/LoadingSpinner";
 import ErrorDisplay from "./dashboard/ErrorDisplay";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-const DEFAULT_PAGE = 1;
+const DEFAULT_OFFSET = 0; // Offset starts at 0
 const DEFAULT_LIMIT = 10;
 const DEFAULT_CATEGORY = "all";
 const DEFAULT_SEARCH = "";
@@ -35,7 +35,7 @@ const ExerciseDashboard = () => {
 
   const getInitialState = useCallback(
     () => ({
-      page: parseInt(searchParams.get("page"), 10) || DEFAULT_PAGE,
+      offset: parseInt(searchParams.get("offset"), 10) || DEFAULT_OFFSET,
       limit: parseInt(searchParams.get("limit"), 10) || DEFAULT_LIMIT,
       category: searchParams.get("category") || DEFAULT_CATEGORY,
       search: searchParams.get("search") || DEFAULT_SEARCH,
@@ -46,7 +46,8 @@ const ExerciseDashboard = () => {
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
   const [view, setView] = useState("grid");
 
   const [searchTerm, setSearchTerm] = useState(getInitialState().search);
@@ -56,33 +57,48 @@ const ExerciseDashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState(
     getInitialState().category
   );
-  const [page, setPage] = useState(getInitialState().page);
+  const [offset, setOffset] = useState(getInitialState().offset);
   const [limit] = useState(getInitialState().limit);
 
+  // Fetch exercises using offset-based pagination.
   const fetchExercises = useCallback(async (params) => {
-    const { limit, page, category, search } = params;
+    const { limit, offset, category, search } = params;
     const searchQuery = search ? `&search=${encodeURIComponent(search)}` : "";
     let url;
 
     if (category && category !== DEFAULT_CATEGORY) {
-      url = `${API_BASE_URL}/exercises/${category}?limit=${limit}&page=${page}${searchQuery}`;
+      url = `${API_BASE_URL}/exercises/bodyPart/${category}?limit=${limit}&offset=${offset}${searchQuery}`;
     } else {
-      url = `${API_BASE_URL}/exercises?limit=${limit}&page=${page}${searchQuery}`;
+      url = `${API_BASE_URL}/exercises?limit=${limit}&offset=${offset}${searchQuery}`;
     }
 
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error("Error fetching exercises");
-    }
+    console.log('Fetching exercises with URL:', url);
 
-    return response.json();
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`API Error (${response.status}): ${errorData.message || 'Unknown error'}`);
+      }
+      const data = await response.json();
+      console.log('API Response:', data);
+      return data;
+    } catch (err) {
+      console.error('Error details:', {
+        url,
+        params,
+        error: err.message,
+        stack: err.stack
+      });
+      throw new Error(`Error fetching exercises: ${err.message}`);
+    }
   }, []);
 
   const updateUrlParams = useCallback(
     (params) => {
       setSearchParams({
         limit: params.limit,
-        page: params.page,
+        offset: params.offset,
         category: params.category,
         search: params.search,
       });
@@ -90,22 +106,24 @@ const ExerciseDashboard = () => {
     [setSearchParams]
   );
 
+  // Debounce search term changes
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
     }, DEBOUNCE_DELAY);
-
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // When debounced search term changes, update URL and reset offset.
   useEffect(() => {
     if (debouncedSearchTerm !== searchParams.get("search")) {
       updateUrlParams({
         limit,
-        page: DEFAULT_PAGE,
+        offset: DEFAULT_OFFSET,
         category: selectedCategory,
         search: debouncedSearchTerm,
       });
+      setOffset(DEFAULT_OFFSET);
     }
   }, [
     debouncedSearchTerm,
@@ -118,19 +136,24 @@ const ExerciseDashboard = () => {
   useEffect(() => {
     const loadExercises = async () => {
       setLoading(true);
-
       try {
         const params = {
           limit,
-          page,
+          offset,
           category: selectedCategory,
           search: debouncedSearchTerm,
         };
-
         const data = await fetchExercises(params);
+        console.log('API Response:', data); // Log the actual API response
+        
+        // The backend always returns this structure
+        if (!data || !data.exercises) {
+          throw new Error('Invalid API response format');
+        }
 
         setExercises(data.exercises);
-        setTotalPages(data.totalPages);
+        setTotalItems(data.total);
+        setHasNextPage(data.hasNextPage);
         setLoading(false);
       } catch (err) {
         console.error("API Error:", err, err.stack);
@@ -138,52 +161,40 @@ const ExerciseDashboard = () => {
         setLoading(false);
       }
     };
-
     loadExercises();
-  }, [page, limit, selectedCategory, debouncedSearchTerm, fetchExercises]);
+  }, [offset, limit, selectedCategory, debouncedSearchTerm, fetchExercises]);
 
   const resetFilters = useCallback(() => {
     setSearchTerm(DEFAULT_SEARCH);
     setSelectedCategory(DEFAULT_CATEGORY);
-    setPage(DEFAULT_PAGE);
-
+    setOffset(DEFAULT_OFFSET);
     updateUrlParams({
       limit,
-      page: DEFAULT_PAGE,
+      offset: DEFAULT_OFFSET,
       category: DEFAULT_CATEGORY,
       search: DEFAULT_SEARCH,
     });
   }, [limit, updateUrlParams]);
 
-  const handlePageChange = useCallback(
-    (newPage) => {
-      if (newPage < 1) return;
-
-      setPage(newPage);
+  const handleOffsetChange = useCallback(
+    (newOffset) => {
+      if (newOffset < 0) return;
+      console.log(`Changing offset from ${offset} to ${newOffset}`);
+      setOffset(newOffset);
       updateUrlParams({
         limit,
-        page: newPage,
+        offset: newOffset,
         category: selectedCategory,
         search: debouncedSearchTerm,
       });
+      // Scroll to top for better user experience
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    [limit, selectedCategory, debouncedSearchTerm, updateUrlParams]
+    [limit, selectedCategory, debouncedSearchTerm, updateUrlParams, offset]
   );
 
-  const handleCategoryChange = useCallback(
-    (category) => {
-      setSelectedCategory(category);
-      setPage(DEFAULT_PAGE);
-
-      updateUrlParams({
-        limit,
-        page: DEFAULT_PAGE,
-        category,
-        search: debouncedSearchTerm,
-      });
-    },
-    [limit, debouncedSearchTerm, updateUrlParams]
-  );
+  const currentPage = Math.floor(offset / limit) + 1;
+  const totalPages = Math.ceil(totalItems / limit);
 
   if (loading) return <LoadingSpinner />;
   if (error)
@@ -197,7 +208,7 @@ const ExerciseDashboard = () => {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         selectedCategory={selectedCategory}
-        setSelectedCategory={handleCategoryChange}
+        setSelectedCategory={setSelectedCategory}
         categories={AVAILABLE_CATEGORIES}
         view={view}
         setView={setView}
@@ -219,23 +230,22 @@ const ExerciseDashboard = () => {
               <ExercisesList exercises={exercises} />
             )}
 
-            <div className="pagination mt-8 p-6 flex justify-center gap-4">
+            <div className="pagination mt-8 p-6 flex justify-center gap-4  rounded-lg shadow-sm">
               <button
-                onClick={() => handlePageChange(page - 1)}
-                disabled={page <= 1}
-                className="btn btn-primary btn-sm"
+                onClick={() => handleOffsetChange(offset - limit)}
+                disabled={offset === 0}
+                className="btn btn-primary btn-sm px-4 py-2 transition-all hover:bg-blue-600"
               >
-                Previous
+                &larr; Previous
               </button>
-              <span className="flex items-center">
-                Page {page} of {totalPages}
-              </span>
+              <div className="flex items-center px-4 py-2 font-medium">
+                <div>Page {Math.floor(offset / limit) + 1} of 133</div>
+              </div>
               <button
-                onClick={() => handlePageChange(page + 1)}
-                disabled={page >= totalPages}
-                className="btn btn-primary btn-sm"
+                onClick={() => handleOffsetChange(offset + limit)}
+                className="btn btn-primary btn-sm px-4 py-2 transition-all hover:bg-blue-600"
               >
-                Next
+                Next &rarr;
               </button>
             </div>
           </>
