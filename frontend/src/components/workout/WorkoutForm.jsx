@@ -54,10 +54,10 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
         let url = `${API_BASE_URL}/exercises`;
 
         if (selectedCategory !== "all") {
-          url = `${url}/${selectedCategory}`;
+          url = `${url}/bodyPart/${selectedCategory}`;
         }
 
-        url = `${url}?limit=${limit}&page=${currentPage}`;
+        url = `${url}?limit=${limit}&offset=${(currentPage - 1) * limit}`;
 
         const response = await fetch(url);
         if (!response.ok) {

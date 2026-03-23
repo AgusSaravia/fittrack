@@ -6,7 +6,7 @@ class ApiClient {
         ? localStorage
         : sessionStorage;
     this.token = this.storage.getItem("token");
-    this.refreshToken = this.storage.getItem("refreshToken");
+    this.refreshTokenValue = this.storage.getItem("refreshToken");
     this.refreshingPromise = null;
     this.loginInProgress = false;
   }
@@ -20,7 +20,7 @@ class ApiClient {
     if (this.storage !== newStorage) {
       this.storage = newStorage;
       this.token = this.storage.getItem("token");
-      this.refreshToken = this.storage.getItem("refreshToken");
+      this.refreshTokenValue = this.storage.getItem("refreshToken");
     }
   }
 
@@ -29,7 +29,7 @@ class ApiClient {
       return this.refreshingPromise;
     }
 
-    if (!this.refreshToken) {
+    if (!this.refreshTokenValue) {
       return Promise.resolve(false);
     }
 
@@ -38,7 +38,7 @@ class ApiClient {
         const response = await fetch(`${this.baseURL}/auth/refresh`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refreshToken: this.refreshToken }),
+          body: JSON.stringify({ refreshToken: this.refreshTokenValue }),
         });
 
         if (!response.ok) {
@@ -88,7 +88,7 @@ class ApiClient {
 
       if (
         response.status === 401 &&
-        this.refreshToken &&
+        this.refreshTokenValue &&
         !this.loginInProgress
       ) {
         const refreshed = await this.refreshToken();
@@ -119,7 +119,7 @@ class ApiClient {
   setTokens(accessToken, refreshToken) {
     this.token = accessToken;
     if (refreshToken) {
-      this.refreshToken = refreshToken;
+      this.refreshTokenValue = refreshToken;
     }
 
     if (accessToken) {
@@ -135,7 +135,7 @@ class ApiClient {
     this.storage.removeItem("token");
     this.storage.removeItem("refreshToken");
     this.token = null;
-    this.refreshToken = null;
+    this.refreshTokenValue = null;
   }
 
   async get(endpoint) {

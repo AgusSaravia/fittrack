@@ -20,13 +20,13 @@ const RegisterPage = () => {
         password,
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.message || "Registration failed");
       }
 
-      const { token } = await response.json();
-      localStorage.setItem("token", token);
+      localStorage.setItem("token", data.token);
       navigate("/");
     } catch (err) {
       setError(err.message);

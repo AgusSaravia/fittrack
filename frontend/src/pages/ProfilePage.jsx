@@ -2,11 +2,11 @@ import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import ErrorDisplay from "../components/dashboard/ErrorDisplay";
 import { useNavigate } from "react-router-dom";
+import apiClient from "../utils/apiClient";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const { token, user } = useContext(AuthContext);
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+  const { token } = useContext(AuthContext);
 
   const [profile, setProfile] = useState({
     name: "",
@@ -25,9 +25,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`${apiUrl}/user/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await apiClient.get("/user/me");
         if (!response.ok) {
           throw new Error("Error fetching profile data");
         }
@@ -45,7 +43,7 @@ const ProfilePage = () => {
       setError("You are not logged in. Please login.");
       setLoading(false);
     }
-  }, [token, apiUrl]);
+  }, [token]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,14 +69,7 @@ const ProfilePage = () => {
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`${apiUrl}/user/me`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(profile),
-      });
+      const response = await apiClient.put("/user/me", profile);
       if (!response.ok) {
         throw new Error("Error saving profile");
       }

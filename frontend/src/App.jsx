@@ -8,15 +8,13 @@ import ProfilePage from "./pages/ProfilePage";
 import Navbar from "./components/dashboard/Navbar";
 import Home from "./pages/HomePage";
 import WorkoutForm from "./components/workout/WorkoutForm";
-import { AuthProvider } from "./context/AuthContext";
 import { WorkoutProvider } from "./context/WorkoutContext";
 import WorkoutCalendar from "./components/WorkoutCalendar";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const App = () => {
   return (
-    <AuthProvider>
-      <WorkoutProvider>
+    <WorkoutProvider>
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -34,7 +32,6 @@ const App = () => {
           </Route>
         </Routes>
       </WorkoutProvider>
-    </AuthProvider>
   );
 };
 
