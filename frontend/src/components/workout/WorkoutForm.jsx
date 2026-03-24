@@ -54,17 +54,22 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
         let url = `${API_BASE_URL}/exercises`;
 
         if (selectedCategory !== "all") {
-          url = `${url}/${selectedCategory}`;
+          url = `${url}/bodyPart/${selectedCategory}`;
         }
 
-        url = `${url}?limit=${limit}&page=${currentPage}`;
+        url = `${url}?limit=${limit}&offset=${(currentPage - 1) * limit}`;
 
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error("Error fetching exercises");
         }
         const data = await response.json();
-        setExercises(data.exercises);
+        setExercises(
+          data.exercises.map((ex) => ({
+            ...ex,
+            gifUrl: ex.gifUrl || `${API_BASE_URL}/exercises/image/${ex.id}`,
+          }))
+        );
         setTotalPages(data.totalPages);
         setHasNextPage(data.hasNextPage);
         setLoading(false);
@@ -86,6 +91,12 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
       setWorkoutName(propWorkout.name);
       setSelectedExercises(propWorkout.exercises);
     } else if (isEditMode && id) {
+      const isValidId = /^[a-fA-F0-9]{24}$/.test(id);
+      if (!isValidId) {
+        setError(`Invalid workout ID: "${id}". Please navigate from the workouts list.`);
+        setLoading(false);
+        return;
+      }
       const fetchWorkout = async () => {
         try {
           setLoading(true);
@@ -129,9 +140,9 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
   };
 
   const toggleExerciseSelection = (exercise) => {
-    if (selectedExercises.some((ex) => ex._id === exercise._id)) {
+    if (selectedExercises.some((ex) => ex.id === exercise.id)) {
       setSelectedExercises(
-        selectedExercises.filter((ex) => ex._id !== exercise._id)
+        selectedExercises.filter((ex) => ex.id !== exercise.id)
       );
     } else {
       setSelectedExercises([
@@ -144,7 +155,7 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
   const updateExerciseConfig = (exerciseId, field, value) => {
     setSelectedExercises(
       selectedExercises.map((ex) =>
-        ex._id === exerciseId ? { ...ex, [field]: value } : ex
+        ex.id === exerciseId ? { ...ex, [field]: value } : ex
       )
     );
   };
@@ -277,10 +288,18 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
                 <div className="mb-4">
                   <ul className="list-disc list-inside">
                     {selectedExercises.map((ex) => (
-                      <li key={ex._id} className="mb-4 border-b pb-2">
+                      <li key={ex.id} className="mb-4 border-b pb-2">
                         <div className="flex justify-between items-center mb-2">
-                          <span>
-                            <strong>{ex.name}</strong> - {ex.bodyPart}
+                          <span className="flex items-center gap-2">
+                            {ex.gifUrl && (
+                              <img
+                                src={ex.gifUrl}
+                                alt={ex.name}
+                                className="w-10 h-10 rounded object-cover flex-shrink-0"
+                                loading="lazy"
+                              />
+                            )}
+                            <span><strong>{ex.name}</strong> - {ex.bodyPart}</span>
                           </span>
                           <button
                             className="btn btn-sm btn-error btn-outline"
@@ -301,7 +320,7 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
                               value={ex.weight || ""}
                               onChange={(e) =>
                                 updateExerciseConfig(
-                                  ex._id,
+                                  ex.id,
                                   "weight",
                                   e.target.value
                                 )
@@ -320,7 +339,7 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
                               value={ex.reps || ""}
                               onChange={(e) =>
                                 updateExerciseConfig(
-                                  ex._id,
+                                  ex.id,
                                   "reps",
                                   e.target.value
                                 )
@@ -461,11 +480,11 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
             {exercises.length > 0 ? (
               exercises.map((ex) => {
                 const isSelected = selectedExercises.some(
-                  (selected) => String(selected._id) === String(ex._id)
+                  (selected) => String(selected.id) === String(ex.id)
                 );
                 return (
                   <div
-                    key={ex._id}
+                    key={ex.id}
                     className={`p-4 rounded shadow cursor-pointer ${
                       isSelected
                         ? "bg-primary text-primary-content"
@@ -473,6 +492,16 @@ const WorkoutForm = ({ selectedDate = new Date(), workout: propWorkout }) => {
                     }`}
                     onClick={() => toggleExerciseSelection(ex)}
                   >
+                    {ex.gifUrl && (
+                      <div className="mb-2 rounded overflow-hidden bg-gray-100 aspect-square">
+                        <img
+                          src={ex.gifUrl}
+                          alt={ex.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
                     <h2 className="font-medium">{ex.name}</h2>
                     <p
                       className={`text-xs ${

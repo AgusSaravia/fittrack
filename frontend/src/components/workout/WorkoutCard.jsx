@@ -36,12 +36,14 @@ const WorkoutCard = ({ workout, onDelete }) => {
         </p>
 
         <div className="card-actions justify-end">
-          <Link
-            to={`/workout/${workout._id}`}
-            className="btn btn-sm btn-outline"
-          >
-            Edit
-          </Link>
+          {workout._id && (
+            <Link
+              to={`/workout/${workout._id}`}
+              className="btn btn-sm btn-outline"
+            >
+              Edit
+            </Link>
+          )}
           <button
             onClick={() => onDelete(workout._id)}
             className="btn btn-sm btn-error btn-outline"

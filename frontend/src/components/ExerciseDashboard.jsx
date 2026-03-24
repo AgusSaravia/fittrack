@@ -70,7 +70,9 @@ const ExerciseDashboard = () => {
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [totalItems, setTotalItems] = useState(0);
+  // eslint-disable-next-line no-unused-vars
   const [hasNextPage, setHasNextPage] = useState(false);
   const [view, setView] = useState("grid");
 
@@ -184,7 +186,12 @@ const ExerciseDashboard = () => {
           throw new Error('Invalid API response format');
         }
 
-        setExercises(data.exercises);
+        setExercises(
+          data.exercises.map((exercise) => ({
+            ...exercise,
+            gifUrl: exercise.gifUrl || `${API_BASE_URL}/exercises/image/${exercise.id}`,
+          }))
+        );
         setTotalItems(data.total);
         setHasNextPage(data.hasNextPage);
         setLoading(false);
@@ -228,9 +235,6 @@ const ExerciseDashboard = () => {
     },
     [limit, selectedCategory, selectedTarget, debouncedSearchTerm, updateUrlParams, offset]
   );
-
-  const currentPage = Math.floor(offset / limit) + 1;
-  const totalPages = Math.ceil(totalItems / limit);
 
   if (loading) return <LoadingSpinner />;
   if (error)
