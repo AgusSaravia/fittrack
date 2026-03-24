@@ -28,12 +28,14 @@ const RecentWorkoutsTable = ({ workouts, limit = 5 }) => {
             <div className="flex justify-between items-start mb-2">
               <h3 className="text-lg font-semibold">{workout.name}</h3>
               <div className="flex space-x-2">
-                <Link
-                  to={`/workout/${workout._id}`}
-                  className="btn btn-xs btn-primary"
-                >
-                  Edit
-                </Link>
+                {workout._id && (
+                  <Link
+                    to={`/workout/${workout._id}`}
+                    className="btn btn-xs btn-primary"
+                  >
+                    Edit
+                  </Link>
+                )}
                 <button
                   onClick={() => deleteWorkout(workout._id)}
                   className="btn btn-xs btn-error"
